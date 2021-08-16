@@ -6,8 +6,11 @@ branding:
 author: 'Pavel Kolář'
 inputs:
   expire-in:
-    required: true
+    required: false
     description: 'Human readable expire duration'
+  pattern:
+    required: false
+    description: 'Regular expression'
   token:
     required: true
     description: 'Github auth token'

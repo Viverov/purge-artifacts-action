@@ -43,10 +43,25 @@ export async function* eachArtifact(
 }
 
 export interface IActionInputs {
-  expireInMs: number
+  expireInMs?: number
+  pattern?: string
 }
 export function getActionInputs(): IActionInputs {
-  const expireInHumanReadable = core.getInput('expire-in', { required: true })
-  const expireInMs = parseDuration(expireInHumanReadable)
-  return { expireInMs }
+  const result: IActionInputs = {}
+
+  const expireInHumanReadable = core.getInput('expire-in', { required: false })
+  if (expireInHumanReadable !== '') {
+    result.expireInMs = parseDuration(expireInHumanReadable)
+  }
+
+  const pattern = core.getInput('pattern', { required: false })
+  if (pattern !== '') {
+    result.pattern = pattern
+  }
+
+  if (!expireInHumanReadable && !pattern) {
+    throw new Error('"expire-at" or "pattern" must be defined in action params')
+  }
+
+  return result
 }
