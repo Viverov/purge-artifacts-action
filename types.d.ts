@@ -16,5 +16,5 @@ declare module 'parse-duration' {
   /**
    * convert `str` to ms
    */
-  function parse (str: string): number
+  function parse(str: string): number
 }

@@ -2098,9 +2098,17 @@ const github = __importStar(__webpack_require__(469));
 const differenceInMilliseconds_1 = __importDefault(__webpack_require__(647));
 const utils_1 = __webpack_require__(611);
 function shouldDelete(artifact, actionInputs) {
-    const expired = differenceInMilliseconds_1.default(new Date(), new Date(artifact.created_at)) >=
-        actionInputs.expireInMs;
-    return expired;
+    let result = true;
+    if (actionInputs.expireInMs !== undefined) {
+        result =
+            result &&
+                differenceInMilliseconds_1.default(new Date(), new Date(artifact.created_at)) >=
+                    actionInputs.expireInMs;
+    }
+    if (actionInputs.pattern !== undefined) {
+        result = result && new RegExp(actionInputs.pattern).test(artifact.name);
+    }
+    return result;
 }
 exports.shouldDelete = shouldDelete;
 function main() {
@@ -21797,9 +21805,19 @@ function eachArtifact(octokit) {
 }
 exports.eachArtifact = eachArtifact;
 function getActionInputs() {
-    const expireInHumanReadable = core.getInput('expire-in', { required: true });
-    const expireInMs = parse_duration_1.default(expireInHumanReadable);
-    return { expireInMs };
+    const result = {};
+    const expireInHumanReadable = core.getInput('expire-in', { required: false });
+    if (expireInHumanReadable !== '') {
+        result.expireInMs = parse_duration_1.default(expireInHumanReadable);
+    }
+    const pattern = core.getInput('pattern', { required: false });
+    if (pattern !== '') {
+        result.pattern = pattern;
+    }
+    if (!expireInHumanReadable && !pattern) {
+        throw new Error('"expire-at" or "pattern" must be defined in action params');
+    }
+    return result;
 }
 exports.getActionInputs = getActionInputs;
 
